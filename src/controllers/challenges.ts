@@ -6,8 +6,8 @@ import { Request, Response } from "express";
 let challenge: CChallenges = new CChallenges(new database);
 
 
-export function challengeCreate(_req: Request, res: Response) {
-   let name: string = _req.query["name"] as string;
+export function challengeCreate(req: Request, res: Response) {
+   let name: string = req.query["name"] as string;
 
   challenge.create(name)
 
@@ -18,4 +18,13 @@ export async function challengeGetAll(_req: Request, res: Response) {
     let challenges = await challenge.getAll();
     
     res.json(challenges)
+}
+
+export function challengeJoin(req: Request, res: Response) {
+    let userId: string = req.query['userId'] as string;
+    let challengeId: string = req.query['challengeId'] as string;
+
+    challenge.join(userId, challengeId);
+
+    res.json({ message: "Challenges joined successfully"});
 }

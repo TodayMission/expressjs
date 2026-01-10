@@ -1,6 +1,6 @@
 import express from "express";
 require('dotenv').config();
-import { challengeCreate, challengeGetAll } from "./controllers/challenges"
+import { challengeCreate, challengeGetAll, challengeJoin } from "./controllers/challenges"
 
 
 const app = express();
@@ -18,5 +18,6 @@ app.get("/", (_req, res) => {
 
 app.post("/challenges/create/", challengeCreate)
 app.get("/challenges/", challengeGetAll)
+app.post("/challenges/join/", challengeJoin)
 
 export default app
