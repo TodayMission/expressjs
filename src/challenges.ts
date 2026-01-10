@@ -1,16 +1,32 @@
 import { IMain } from "pg-promise";
 import { data } from "./data"
 
-export class challenges {
+export interface IChallenges {
+
+} 
+
+export class CChallenges {
     
-    manager!: data;
+    private manager!: data;
+    private table = "challenges"
 
     constructor(data: data) {
         this.manager = data; 
     }
 
     create(name: string) {
-        this.manager.insert(name);
+        this.manager.insert(
+            this.table,
+            ["name"],
+            [name]
+        );
     }
 
+    async getAll() {
+
+        let select = await this.manager.select(this.table, ["*"])
+        
+        console.log(select);
+        return select
+    }
 }

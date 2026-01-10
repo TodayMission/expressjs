@@ -1,22 +1,22 @@
 import express from "express";
 require('dotenv').config();
-import { challenges } from "./challenges";
-import { database } from "./data";
+import { challengeCreate, challengeGetAll } from "./controllers/challenges"
+
 
 const app = express();
 
 app.use(express.json());
 
+
 app.get("/", (_req, res) => {
   res.json({ message: "Hello Express + TypeScript 🚀" });
 });
 
-app.get("/challenges/create", (_req, res) => {
-  let challenge: challenges = new challenges(new database);
+//**
+// CHALLENGES
+//  */
 
-  challenge.create("test")
-
-  res.json({ message: "Success"});
-})
+app.post("/challenges/create/", challengeCreate)
+app.get("/challenges/", challengeGetAll)
 
 export default app

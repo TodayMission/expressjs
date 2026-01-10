@@ -6,17 +6,40 @@ export interface data {
 }
 
 export class database implements data {
-    insert(value: String) {
+
+    private formatKey(keys: Array<String>) : String {
+        let keysString: String = "";
+
+        keys.forEach((fn, index) => {
+            if(index < keys.length - 1) {
+                keysString += fn + ", "
+            } else {
+                keysString += fn + ""
+            }
+        })
+
+        return keysString;
+    }
+
+    insert(table: String, keys: Array<String>, values: Array<String>) {
+        let keysString = this.formatKey(keys);
+
         db.none(
-            `INSERT INTO challenges (name)
+            `INSERT INTO ${table} (${keysString})
             VALUES ($1)`,
-            value
+            values
         ).catch((error: Error) => {
-            console.log("Somethings wrong happen")
+            console.log("Somethings wrong happen : " + error.message)
         })
     }
 
-    select(value: String) {
+    async select(table: String, keys: Array<String>) {
+        let keysString = this.formatKey(keys);
 
+        let result = await db.multi(
+            `SELECT ${keysString} from ${table}`
+        )
+
+        return result;
     }
 }
