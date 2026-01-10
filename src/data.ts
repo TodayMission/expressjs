@@ -57,7 +57,9 @@ export class database implements data {
         db.none(
             `DELETE FROM ${table} WHERE ${stringBuilder}`,
             values
-        )
+        ).catch((error: Error) => {
+            console.log(error.message)
+        })
     }
 
     async select(table: String, keys: Array<String>, option: String, args: Array<String>) {

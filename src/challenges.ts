@@ -61,5 +61,17 @@ export class CChallenges {
             }
         )
     }
+
+    cancel(challengeId: string) {
+        this.manager.delete(
+            this.table,
+            {
+                WHERE: [
+                    ["id"],
+                    [challengeId]
+                ]
+            }
+        )
+    }
     
 }
