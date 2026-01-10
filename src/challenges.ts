@@ -31,11 +31,35 @@ export class CChallenges {
         return select
     }
 
-    join(userId: string, challengeId: string) {
+    join(challengeId: string, userId: string) {
         this.manager.insert(
             this.challenge_participants_table,
             ["user_id", "challenge_id"],
             [userId, challengeId]
         )
     }
+
+    async isParticipating(challengeId: string, userId: string) : Promise<Boolean> {
+        let response = await this.manager.select(this.challenge_participants_table, ["COUNT(id)"], "WHERE user_id = $1 and challenge_id = $2", [userId, challengeId])
+
+        console.log(response[0][0]["count"])
+
+        if(response[0][0]["count"] != 1){
+            return false;
+        }
+        return true;
+    }
+
+    leave(challengeId: string, userId: string) {
+        this.manager.delete(
+            this.challenge_participants_table,
+            {
+                WHERE: [
+                    ["user_id", "AND challenge_id"],
+                    [userId, challengeId]
+                ]
+            }
+        )
+    }
+    
 }

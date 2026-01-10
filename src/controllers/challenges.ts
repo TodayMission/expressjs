@@ -24,7 +24,19 @@ export function challengeJoin(req: Request, res: Response) {
     let userId: string = req.query['userId'] as string;
     let challengeId: string = req.query['challengeId'] as string;
 
-    challenge.join(userId, challengeId);
+    challenge.join(challengeId, userId);
 
     res.json({ message: "Challenges joined successfully"});
+}
+
+export async function challengeLeave(req: Request, res: Response) {
+    let userId: string = req.query['userId'] as string;
+    let challengeId: string = req.query['challengeId'] as string;
+
+    if(await challenge.isParticipating(challengeId, userId)) {
+        challenge.leave(challengeId, userId);
+        res.json({ message: "You leaved the challenge"})
+        return
+    }
+    res.json({message: "You don't even participate to this challenge"})
 }

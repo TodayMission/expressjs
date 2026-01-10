@@ -3,6 +3,11 @@ import { db } from "./database"
 export interface data {
     insert: Function
     select: Function
+    delete: Function
+}
+
+interface options {
+    WHERE: Array<Array<String>>
 }
 
 export class database implements data {
@@ -38,11 +43,29 @@ export class database implements data {
         })
     }
 
-    async select(table: String, keys: Array<String>) {
+    delete(table: String, options: options){
+        
+        let stringBuilder: String = ""; 
+
+        let columns = options.WHERE[0];
+        let values = options.WHERE[1];
+
+        columns.forEach( (element: String, index: number) => {
+            stringBuilder += `${element} = $${index+1} `
+        });
+
+        db.none(
+            `DELETE FROM ${table} WHERE ${stringBuilder}`,
+            values
+        )
+    }
+
+    async select(table: String, keys: Array<String>, option: String, args: Array<String>) {
         let keysString = this.formatKey(keys).keyString;
 
         let result = await db.multi(
-            `SELECT ${keysString} from ${table}`
+            `SELECT ${keysString} from ${table} ${option}`,
+            args
         )
 
         return result;
