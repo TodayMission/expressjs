@@ -1,6 +1,6 @@
 import express from "express";
 require('dotenv').config();
-import { challengeCreate, challengeGetAll, challengeJoin, challengeLeave, challengeCancel } from "./controllers/challenges"
+import { challengeCreate, challengeGetAll, challengeJoin, challengeLeave, challengeCancel, challengeCompleted} from "./controllers/challenges"
 
 
 const app = express();
@@ -21,6 +21,7 @@ app.get("/challenges/", challengeGetAll)
 app.post("/challenges/join/", challengeJoin)
 app.delete("/challenges/leave/", challengeLeave)
 app.delete("/challenges/cancel/", challengeCancel)
+app.post("/challenges/complete", challengeCompleted)
 
 
 export default app

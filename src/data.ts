@@ -4,6 +4,7 @@ export interface data {
     insert: Function
     select: Function
     delete: Function
+    update: Function
 }
 
 interface options {
@@ -31,6 +32,23 @@ export class database implements data {
                };
     }
 
+    private parseWhere(columns: Array<String>, value = 0){
+        let stringBuilder: String = ""; 
+
+        let different = value > 0 
+
+        columns.forEach( (element: String, index: number) => {
+            if(different){
+                stringBuilder += `${element} = $${value+1} `
+                value++
+            } else {
+                stringBuilder += `${element} = $${index+1} `
+            }
+        });
+
+        return stringBuilder;
+    }
+
     insert(table: String, keys: Array<String>, values: Array<String>) {
         let formatted = this.formatKey(keys);
 
@@ -43,19 +61,31 @@ export class database implements data {
         })
     }
 
-    delete(table: String, options: options){
-        
-        let stringBuilder: String = ""; 
+    update(table: string, keys: Array<String>, values: Array<String>, options: options){
+        let updateString: String = this.parseWhere(keys);
+        let whereClause: String = this.parseWhere(options.WHERE[0], keys.length);
 
-        let columns = options.WHERE[0];
-        let values = options.WHERE[1];
+        console.log(keys.length)
+        let whereValues = options.WHERE[1]
 
-        columns.forEach( (element: String, index: number) => {
-            stringBuilder += `${element} = $${index+1} `
-        });
+        console.log(updateString)
+        console.log(whereClause)
 
         db.none(
-            `DELETE FROM ${table} WHERE ${stringBuilder}`,
+            `UPDATE ${table} SET ${updateString} WHERE ${whereClause}`,
+            values.concat(whereValues),
+        );
+
+    }
+
+    delete(table: String, options: options){
+
+        let whereClause: String = this.parseWhere(options.WHERE[0]);
+
+        let values = options.WHERE[1]
+
+        db.none(
+            `DELETE FROM ${table} WHERE ${whereClause}`,
             values
         ).catch((error: Error) => {
             console.log(error.message)

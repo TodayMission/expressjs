@@ -44,8 +44,15 @@ export async function challengeLeave(req: Request, res: Response) {
 export async function challengeCancel(req: Request, res: Response) {
     let challengeId: string = req.query['challengeId'] as string;
 
-    console.log(challengeId)
-
     challenge.cancel(challengeId);
     res.json({message: "Challenge canceled"})
+}
+
+export async function challengeCompleted(req: Request, res: Response) {
+    let challengeId: string = req.query['challengeId'] as string;
+    let userId: string = req.query['userId'] as string;
+    
+    challenge.complete(challengeId, userId);
+
+    res.json({message: "Challenge completed"});
 }

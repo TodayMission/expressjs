@@ -73,5 +73,19 @@ export class CChallenges {
             }
         )
     }
+
+    complete(challengeId: string, userId: string) {
+        this.manager.update(
+            this.challenge_participants_table,
+            ["is_completed"],
+            ['t'],
+            {
+                WHERE: [
+                    ["challenge_id", "and user_id"],
+                    [challengeId, userId]
+                ]
+            }
+        )
+    }
     
 }
