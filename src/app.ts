@@ -1,6 +1,10 @@
 import express from "express";
 import multer, { StorageEngine } from "multer";
 require('dotenv').config();
+
+import { userLogin } from "./controllers/auth";
+import { requireAuth } from "./middlewares/auth";
+import { groupCreate } from "./controllers/groups";
 import { challengeCreate, challengeGetAll, challengeJoin, challengeLeave, challengeCancel, challengeCompleted, requireUserId, RequireChallengeId, RequireToCreateChallenge} from "./controllers/challenges"
 import { deleteFile, getFile, uploadFile } from "./controllers/files";
 
@@ -42,5 +46,20 @@ app.delete("/challenges/leave/", requireUserId ,RequireChallengeId, challengeLea
 app.delete("/challenges/cancel/", RequireChallengeId, challengeCancel)
 app.post("/challenges/complete", requireUserId ,RequireChallengeId,challengeCompleted)
 
+
+
+//**
+// AUTH
+// */
+
+app.post("/auth/login/", userLogin);
+
+
+//**
+// GROUPS
+// */
+
+
+app.post("/groups/create/", requireAuth, groupCreate);
 
 export default app
