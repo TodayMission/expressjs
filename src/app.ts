@@ -1,6 +1,9 @@
 import express from "express";
 require('dotenv').config();
 import { challengeCreate, challengeGetAll, challengeJoin, challengeLeave, challengeCancel, challengeCompleted} from "./controllers/challenges"
+import { userLogin } from "./controllers/auth";
+import { groupCreate } from "./controllers/groups";
+
 
 
 const app = express();
@@ -23,5 +26,19 @@ app.delete("/challenges/leave/", challengeLeave)
 app.delete("/challenges/cancel/", challengeCancel)
 app.post("/challenges/complete", challengeCompleted)
 
+
+
+//**
+// AUTH
+// */
+
+app.post("/auth/login/", userLogin);
+
+
+//**
+// GROUPS
+// */
+
+app.post("/groups/create/", groupCreate);
 
 export default app
