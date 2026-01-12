@@ -2,8 +2,8 @@ import express from "express";
 require('dotenv').config();
 import { challengeCreate, challengeGetAll, challengeJoin, challengeLeave, challengeCancel, challengeCompleted} from "./controllers/challenges"
 import { userLogin } from "./controllers/auth";
+import { requireAuth } from "./middlewares/auth";
 import { groupCreate } from "./controllers/groups";
-
 
 
 const app = express();
@@ -39,6 +39,7 @@ app.post("/auth/login/", userLogin);
 // GROUPS
 // */
 
-app.post("/groups/create/", groupCreate);
+
+app.post("/groups/create/", requireAuth, groupCreate);
 
 export default app

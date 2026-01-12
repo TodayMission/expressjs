@@ -1,4 +1,5 @@
 import { data } from "./data";
+import { signJwt } from "./jwt";
 
 export class CAuth {
   private manager!: data;
@@ -19,6 +20,11 @@ export class CAuth {
     const user = response?.[0]?.[0];
     if (!user) return null;
 
-    return response
+    const token = signJwt(
+      { userId: user["id"], email: user["email"] },
+      60 * 60 * 24 * 7
+    );
+    return {token, response}
+    
   }
 }
