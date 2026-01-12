@@ -1,5 +1,6 @@
 import { data } from "./data";
 import { signJwt } from "./jwt";
+import { convertDayToSeconds } from "./utils";
 
 export class CAuth {
   private manager!: data;
@@ -13,8 +14,12 @@ export class CAuth {
     const response = await this.manager.select(
       this.table,
       ["id", "name", "email", "avatar_url"],
-      "WHERE email = $1 AND password_hashed = $2",
-      [email, password]
+      {
+        WHERE: [
+          ["email", "and password_hashed"],
+          [email, password]
+        ]
+      }
     );
 
     const user = response?.[0]?.[0];
@@ -22,9 +27,8 @@ export class CAuth {
 
     const token = signJwt(
       { userId: user["id"], email: user["email"] },
-      60 * 60 * 24 * 7
+      convertDayToSeconds(7)
     );
     return {token, response}
-    
   }
 }
