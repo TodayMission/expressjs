@@ -1,10 +1,11 @@
+import { assert } from "console"
 import { db } from "./database"
 
 export interface data {
-    insert: Function
-    select: Function
-    delete: Function
-    update: Function
+    insert(table: String, keys: Array<String>, values: Array<String>): Promise<void>
+    select(table: String, keys: Array<String>, options: options | undefined): Promise<any>
+    delete(table: String, options: options): Promise<void>
+    update(table: string, keys: Array<String>, values: Array<String>, options: options): Promise<void>
 }
 
 interface options {
@@ -49,19 +50,17 @@ export class database implements data {
         return stringBuilder;
     }
 
-    insert(table: String, keys: Array<String>, values: Array<String>) {
+    async insert(table: String, keys: Array<String>, values: Array<String>) {
         let formatted = this.formatKey(keys);
 
-        db.none(
+        await db.none(
             `INSERT INTO ${table} (${formatted.keyString})
             VALUES (${formatted.valueBuilder})`,
             values
-        ).catch((error: Error) => {
-            console.log("Somethings wrong happen : " + error.message)
-        })
+        )
     }
 
-    update(table: string, keys: Array<String>, values: Array<String>, options: options){
+    async update(table: string, keys: Array<String>, values: Array<String>, options: options){
         let updateString: String = this.parseWhere(keys);
         let whereClause: String = this.parseWhere(options.WHERE[0], keys.length);
 
@@ -71,33 +70,39 @@ export class database implements data {
         console.log(updateString)
         console.log(whereClause)
 
-        db.none(
+        await db.none(
             `UPDATE ${table} SET ${updateString} WHERE ${whereClause}`,
             values.concat(whereValues),
         );
 
     }
 
-    delete(table: String, options: options){
+    async delete(table: String, options: options){
 
         let whereClause: String = this.parseWhere(options.WHERE[0]);
 
         let values = options.WHERE[1]
 
-        db.none(
+        await db.none(
             `DELETE FROM ${table} WHERE ${whereClause}`,
             values
-        ).catch((error: Error) => {
-            console.log(error.message)
-        })
+        )
     }
 
-    async select(table: String, keys: Array<String>, option: String, args: Array<String>) {
+    async select(table: String, keys: Array<String>, options: options) {
         let keysString = this.formatKey(keys).keyString;
+        
+        let whereClause: String = ""
+        let values: String[] = []
+
+        if(options){
+            whereClause = "WHERE " + this.parseWhere(options.WHERE[0])
+            values = options.WHERE[1]
+        }
 
         let result = await db.multi(
-            `SELECT ${keysString} from ${table} ${option}`,
-            args
+            `SELECT ${keysString} from ${table} ${whereClause}`,
+            values
         )
 
         return result;
