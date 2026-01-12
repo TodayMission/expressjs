@@ -8,8 +8,10 @@ let challenge: CChallenges = new CChallenges(new database);
 
 export function challengeCreate(req: Request, res: Response) {
    let name: string = req.query["name"] as string;
+   let groupId: string = req.query["groupId"] as string;
+   let creatorId: string = req.query["creatorId"] as string;
 
-  challenge.create(name)
+  challenge.create(name, groupId, creatorId)
 
   res.json({ message: name});
 }

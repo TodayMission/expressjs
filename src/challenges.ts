@@ -16,11 +16,11 @@ export class CChallenges {
         this.manager = data; 
     }
 
-    create(name: string) {
+    create(name: string, groupId: string, userId: string) {
         this.manager.insert(
             this.table,
-            ["name"],
-            [name]
+            ["name", "group_id", "creator_id"],
+            [name, groupId, userId]
         );
     }
 
