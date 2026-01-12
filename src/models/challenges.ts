@@ -1,5 +1,5 @@
 import { IMain } from "pg-promise";
-import { data } from "./data"
+import { data } from "../data"
 
 export interface IChallenges {
 
@@ -16,8 +16,8 @@ export class CChallenges {
         this.manager = data; 
     }
 
-    create(name: string, groupId: string, userId: string) {
-        this.manager.insert(
+    async create(name: string, groupId: string, userId: string) {
+        await this.manager.insert(
             this.table,
             ["name", "group_id", "creator_id"],
             [name, groupId, userId]
@@ -26,13 +26,13 @@ export class CChallenges {
 
     async getAll() {
 
-        let select = await this.manager.select(this.table, ["*"])
+        let select = await this.manager.select(this.table, ["*"], undefined)
         
         return select
     }
 
-    join(challengeId: string, userId: string) {
-        this.manager.insert(
+    async join(challengeId: string, userId: string) {
+        await this.manager.insert(
             this.challenge_participants_table,
             ["user_id", "challenge_id"],
             [userId, challengeId]
@@ -40,18 +40,25 @@ export class CChallenges {
     }
 
     async isParticipating(challengeId: string, userId: string) : Promise<Boolean> {
-        let response = await this.manager.select(this.challenge_participants_table, ["COUNT(id)"], "WHERE user_id = $1 and challenge_id = $2", [userId, challengeId])
+        let response = await this.manager.select(this.challenge_participants_table, ["COUNT(id)"], 
+            {
+                WHERE: [
+                    ["user_id", "AND challenge_id"],
+                    [userId, challengeId]
+                ]
+            }
+        )
 
         console.log(response[0][0]["count"])
 
-        if(response[0][0]["count"] != 1){
+        if(response[0][0]["count"] == 0){
             return false;
         }
         return true;
     }
 
-    leave(challengeId: string, userId: string) {
-        this.manager.delete(
+    async leave(challengeId: string, userId: string) {
+        await this.manager.delete(
             this.challenge_participants_table,
             {
                 WHERE: [
@@ -62,8 +69,8 @@ export class CChallenges {
         )
     }
 
-    cancel(challengeId: string) {
-        this.manager.delete(
+    async cancel(challengeId: string) {
+        await this.manager.delete(
             this.table,
             {
                 WHERE: [
@@ -74,8 +81,8 @@ export class CChallenges {
         )
     }
 
-    complete(challengeId: string, userId: string) {
-        this.manager.update(
+    async complete(challengeId: string, userId: string) {
+        await this.manager.update(
             this.challenge_participants_table,
             ["is_completed"],
             ['t'],
