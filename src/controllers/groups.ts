@@ -16,14 +16,14 @@ export async function groupCreate(req: Request, res: Response) {
   const creatorId = user?.userId;
 
   if (!creatorId) {
-    res.json({ message: "missing userId in token" });
+    res.status(401).json({ message: "missing userId in token" });
     return;
   }
 
   try {
     await groups.create(name, String(creatorId));
     res.json({ message: `group ${name} created`, name });
-  } catch {
-    res.json({ message: "error creating group" });
+  } catch (error) {
+    res.status(500).json({ message: "error creating group" });
   }
 }

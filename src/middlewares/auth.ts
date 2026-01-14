@@ -4,7 +4,7 @@ import { verifyJwt } from "../jwt";
 export function requireAuth(req: Request, res: Response, next: NextFunction) {
   const auth = req.headers.authorization;
   if (!auth || !auth.startsWith("Bearer ")) {
-    res.json({ message: "Missing token" });
+    res.status(401).json({ message: "Missing token" });
     return;
   }
 
@@ -14,6 +14,6 @@ export function requireAuth(req: Request, res: Response, next: NextFunction) {
     (req as any).user = decoded;
     next();
   } catch {
-    res.json({ message: "Invalid token" });
+    res.status(401).json({ message: "Invalid token" });
   }
 }
