@@ -8,11 +8,18 @@ export class CGroups {
     this.manager = data;
   }
 
-  async create(name: string) {
-    try{
-      await this.manager.insert(this.table, ["name", "creator_id"], [name, "1"]);
+  async create(name: string, creatorId: string) {
+    try {
+      if (!creatorId) throw new Error("creatorId missing");
+
+      await this.manager.insert(
+        this.table,
+        ["name", "creator_id"],
+        [name, creatorId]
+      );
     } catch (error) {
-        console.error("Error creating group:", error);
+      console.error("Error creating group:", error);
+      throw error; 
     }
   }
 }
