@@ -8,7 +8,11 @@ export class CGroups {
     this.manager = data;
   }
 
-  create(name: string, creatorId: string) {
-    this.manager.insert(this.table, ["name", "creator_id"], [name, creatorId]);
+  async create(name: string, creatorId: string) { 
+      await this.manager.insert(
+        this.table,
+        ["name", "creator_id"],
+        [name, creatorId]
+      );
   }
 }
