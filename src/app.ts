@@ -39,12 +39,12 @@ app.delete('/upload/delete', deleteFile)
 // CHALLENGES
 //  */
 
-app.post("/challenges/create/", RequireToCreateChallenge, challengeCreate)
+app.post("/challenges/create/", requireAuth, RequireToCreateChallenge, challengeCreate)
 app.get("/challenges/", challengeGetAll)
-app.post("/challenges/join/", requireUserId ,RequireChallengeId, challengeJoin)
-app.delete("/challenges/leave/", requireUserId ,RequireChallengeId, challengeLeave)
-app.delete("/challenges/cancel/", RequireChallengeId, challengeCancel)
-app.post("/challenges/complete", requireUserId ,RequireChallengeId,challengeCompleted)
+app.post("/challenges/join/", requireAuth, requireUserId ,RequireChallengeId, challengeJoin)
+app.delete("/challenges/leave/", requireAuth, requireUserId ,RequireChallengeId, challengeLeave)
+app.delete("/challenges/cancel/", requireAuth, RequireChallengeId, challengeCancel)
+app.post("/challenges/complete", requireAuth, requireUserId ,RequireChallengeId,challengeCompleted)
 
 
 

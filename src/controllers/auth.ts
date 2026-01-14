@@ -5,8 +5,10 @@ import { database } from "../data";
 let auth: CAuth = new CAuth(new database());
 
 export async function userLogin(req: Request, res: Response) {
-  const email: string = req.query["email"] as string;
-  const password: string = req.query["password"] as string; 
+  console.log(req.body)
+  
+  const email: string = req.body.email as string;
+  const password: string = req.body.password as string; 
 
   const result = await auth.login(email, password);
   if (!result) {

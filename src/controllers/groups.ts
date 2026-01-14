@@ -5,7 +5,7 @@ import { database } from "../data";
 let groups: CGroups = new CGroups(new database());
 
 export function groupCreate(req: Request, res: Response) {
-  const name: string = req.query["name"] as string;
+  const name: string = req.body.name as string;
 
   if (!name) {
     res.status(400).json({ message: "name required" });
