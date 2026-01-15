@@ -1,8 +1,7 @@
 import { Request, Response } from "express";
 import { CGroups } from "../groups";
-import { database } from "../data";
 
-let groups: CGroups = new CGroups(new database());
+let groups: CGroups = new CGroups();
 
 export function groupCreate(req: Request, res: Response) {
   const name: string = req.body.name as string;
@@ -13,8 +12,17 @@ export function groupCreate(req: Request, res: Response) {
   }
 
   const user = (req as any).user;
-  const creatorId = String(user.userId);
+  const creatorId = user?.userId;
 
-  groups.create(name, creatorId);
-  res.json({ message: `group ${name} created`, name });
+  if (!creatorId) {
+    res.status(401).json({ message: "missing userId in token" });
+    return;
+  }
+
+  try {
+    const groupId = await groups.create(name, String(creatorId));
+    res.json({ message: `group ${name} created`, name, groupId });
+  } catch (error) {
+    res.status(500).json({ message: "error creating group" });
+  }
 }

@@ -1,14 +1,24 @@
-import { data } from "./data";
+import { db } from "./database";
 
 export class CGroups {
-  private manager!: data;
-  private table = "groups";
+  async create(name: string, creatorId: string) {
+    const result = await db.tx(async (t) => {
+      const created = await t.one(
+        `INSERT INTO groups (name, creator_id)
+         VALUES ($1, $2)
+         RETURNING id`,
+        [name, creatorId]
+      );
 
-  constructor(data: data) {
-    this.manager = data;
-  }
+      await t.none(
+        `INSERT INTO group_users (group_id, user_id, joined_at)
+         VALUES ($1, $2, NOW())`,
+        [created.id, creatorId]
+      );
 
-  create(name: string, creatorId: string) {
-    this.manager.insert(this.table, ["name", "creator_id"], [name, creatorId]);
+      return created.id;
+    });
+
+    return result;
   }
 }
