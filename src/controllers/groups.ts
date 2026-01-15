@@ -3,8 +3,8 @@ import { CGroups } from "../groups";
 
 let groups: CGroups = new CGroups();
 
-export async function groupCreate(req: Request, res: Response) {
-  const name: string = req.query["name"] as string;
+export function groupCreate(req: Request, res: Response) {
+  const name: string = req.body.name as string;
 
   if (!name) {
     res.status(400).json({ message: "name required" });
