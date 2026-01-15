@@ -1,8 +1,7 @@
 import { Request, Response } from "express";
 import { CGroups } from "../groups";
-import { database } from "../data";
 
-let groups: CGroups = new CGroups(new database());
+let groups: CGroups = new CGroups();
 
 export async function groupCreate(req: Request, res: Response) {
   const name: string = req.query["name"] as string;
@@ -21,8 +20,8 @@ export async function groupCreate(req: Request, res: Response) {
   }
 
   try {
-    await groups.create(name, String(creatorId));
-    res.json({ message: `group ${name} created`, name });
+    const groupId = await groups.create(name, String(creatorId));
+    res.json({ message: `group ${name} created`, name, groupId });
   } catch (error) {
     res.status(500).json({ message: "error creating group" });
   }
