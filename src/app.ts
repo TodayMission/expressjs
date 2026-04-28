@@ -4,7 +4,7 @@ require('dotenv').config();
 
 import { userLogin } from "./controllers/auth";
 import { requireAuth } from "./middlewares/auth";
-import { groupCreate } from "./controllers/groups";
+import { getMyGroups, groupCreate } from "./controllers/groups";
 import { challengeCreate, challengeGetAll, challengeJoin, challengeLeave, challengeCancel, challengeCompleted, requireUserId, RequireChallengeId, RequireToCreateChallenge} from "./controllers/challenges"
 import { deleteFile, getFile, uploadFile } from "./controllers/files";
 
@@ -61,5 +61,6 @@ app.post("/auth/login/", userLogin);
 
 
 app.post("/groups/create/", requireAuth, groupCreate);
+app.get("/me/groups", requireAuth, getMyGroups);
 
 export default app
