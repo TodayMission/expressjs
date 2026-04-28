@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { CGroups } from "../groups";
+import { CGroups } from "../models/groups";
 import { database } from "../data";
 
 let groups: CGroups = new CGroups(new database);

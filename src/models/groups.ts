@@ -1,5 +1,5 @@
-import { data } from "./data";
-import { db } from "./database";
+import { data } from "../data";
+import { db } from "../database";
 
 
 export class CGroups {
@@ -40,12 +40,7 @@ export class CGroups {
         WHERE group_users.user_id = $1`,
         user_id
     )
-    // let response = await this.manager.select("group_users", ["*"], {
-    //   WHERE: [
-    //     ["user_id"],
-    //     [user_id]
-    //   ]
-    // })
+
     return response
   }
 }
