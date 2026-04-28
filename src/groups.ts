@@ -18,7 +18,7 @@ export class CGroups {
 
       return created.id;
     });
-
     return result;
   }
+  
 }
