@@ -2,25 +2,58 @@ import { Request, Response, NextFunction } from "express";
 import fs from "fs/promises";
 import { Files } from "../models/files"; 
 import { database } from "../data";
+import { CChallenges } from "../models/challenges"
 
 const files: Files = new Files(new database)
+const challenges = new CChallenges(new database())
 
 export async function uploadFile(req: Request, res: Response) {
-  let userId = req.query["userId"] as string
+
+  const userId = req.query["userId"] as string
+  const challengeId = req.params.id
+
   if (!req.file) {
-    return res.status(400).json({ error: 'No file uploaded' });
+    return res.status(400).json({ error: "No file uploaded" })
   }
 
-  let temp_path = "uploads/tmp/" + req.file.filename 
-  let path = "uploads/" + req.file.filename 
+  console.log("FILE UPLOADED:")
+  console.log("Original name:", req.file.originalname)
+  console.log("Filename:", req.file.filename)
+  console.log("Mime type:", req.file.mimetype)
+  console.log("Size:", req.file.size) 
 
-  try{
-    await files.upload(userId, req.file.filename, "uploads/" + req.file.filename)
-    fs.rename(temp_path, path)
-    res.json({ message: 'File uploaded successfully', filename: req.file.filename });
+  const tempPath = "uploads/tmp/" + req.file.filename
+  const finalPath = "uploads/" + req.file.filename
+
+  try {
+    await fs.rename(tempPath, finalPath)
+    await files.upload(
+      userId,
+      challengeId,
+      req.file.filename,
+      finalPath
+    )
+    await challenges.complete(challengeId, userId)
+    const isDone = await challenges.isFullyCompleted(challengeId)
+    if (isDone) {
+      await challenges.markChallengeAsCompleted(challengeId)
+    }
+    return res.json({
+      message: "File uploaded successfully",
+      filename: req.file.filename,
+      challengeCompleted: isDone
+    })
   } catch (error) {
-    fs.unlink(temp_path)
-    res.status(400).json({error: "can't upload the file"})
+    
+    console.error(" UPLOAD ERROR:", error)
+
+    try {
+      await fs.unlink(tempPath)
+    } catch {}
+
+    return res.status(500).json({
+      error: "upload failed"
+    })
   }
 }
 
@@ -31,7 +64,11 @@ export async function deleteFile(req: Request, res: Response){
     let result = await files.get(id)
 
     await files.deleteWithId(id)
-    fs.unlink(result[0][0].path)
+    const file = result?.[0]?.[0]
+    if (!file) {
+      return res.status(404).json({ error: "file not found" })
+    }
+    await fs.unlink(file.path)
   } catch (error) {
     return res.status(400).json({error: "error while deleting"})
   }
