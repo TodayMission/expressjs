@@ -10,9 +10,6 @@ export async function userLogin(req: Request, res: Response) {
   const email: string = req.body.email as string;
   const password: string = req.body.password as string; 
 
-  console.log(email)
-  console.log(password)
-
   const result = await auth.login(email, password);
   if (!result) {
     res.json({ message: "invalid name or password" });

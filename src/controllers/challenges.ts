@@ -6,7 +6,7 @@ import { Request, Response } from "express";
 let challenge: CChallenges = new CChallenges(new database);
 
 export function RequireChallengeId(req: Request, res: Response, next: NextFunction){
-  const challengeId = req.query.challengeId;
+  const challengeId = req.body.challengeId;
 
   if (!challengeId) {
     return res.status(400).json({ error: "challengeId is required" });
@@ -16,7 +16,8 @@ export function RequireChallengeId(req: Request, res: Response, next: NextFuncti
 }
 
 export function requireUserId(req: Request, res: Response, next: NextFunction){
-  const userId = req.query.userId;
+    console.log((req as any).user)
+    const userId = (req as any).user;
 
   if (!userId) {
     return res.status(400).json({ error: "userId is required" });
@@ -28,6 +29,9 @@ export function requireUserId(req: Request, res: Response, next: NextFunction){
 export function RequireToCreateChallenge(req: Request, res: Response, next: NextFunction){
     const name = req.query.name;
     const groupId = req.query.groupId;
+    const name = req.body.name;
+    const groupId = req.body.groupId;
+    const creatorId = (req as any).user;
 
     if (!name) {
         return res.status(400).json({ error: "a name is required" });
@@ -62,8 +66,8 @@ export async function challengeGetAll(_req: Request, res: Response) {
 }
 
 export async function challengeJoin(req: Request, res: Response) {
-    let userId: string = req.query['userId'] as string;
-    let challengeId: string = req.query['challengeId'] as string;
+    const userId = (req as any).user.id;
+    let challengeId: string = req.body.challengeId as string;
 
     await challenge.join(challengeId, userId);
 
@@ -71,8 +75,8 @@ export async function challengeJoin(req: Request, res: Response) {
 }
 
 export async function challengeLeave(req: Request, res: Response) {
-    let userId: string = req.query['userId'] as string;
-    let challengeId: string = req.query['challengeId'] as string;
+    const userId = (req as any).user.id;
+    let challengeId: string = req.body.challengeId as string;
 
     if(!await challenge.isParticipating(challengeId, userId)) {
         return res.status(400).json({error: "You don't even participate to this challenge"})
@@ -83,15 +87,16 @@ export async function challengeLeave(req: Request, res: Response) {
 }
 
 export async function challengeCancel(req: Request, res: Response) {
-    let challengeId: string = req.query['challengeId'] as string;
+    let challengeId: string = req.body.challengeId as string;
 
     challenge.cancel(challengeId);
     res.json({message: "Challenge canceled"})
 }
 
 export async function challengeCompleted(req: Request, res: Response) {
-    let challengeId: string = req.query['challengeId'] as string;
-    let userId: string = req.query['userId'] as string;
+    let challengeId: string = req.body.challengeId as string;
+    
+    const userId = (req as any).user.id;
     
     challenge.complete(challengeId, userId);
 
