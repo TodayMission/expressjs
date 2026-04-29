@@ -56,6 +56,16 @@ export async function getIncomingFriendRequest(req: Request, res: Response) {
     res.json(incoming)
 }
 
+export async function getPendingFriendRequest(req: Request, res: Response) {
+    
+    const user = (req as any).user;
+    const user_id = user?.userId;
+
+    let pending = await friends.getPending(user_id)
+
+    res.json(pending)
+}
+
 export async function denyIncomingFriendRequest(req: Request, res: Response) {
     const requester_id = req.body.user as string;
 
