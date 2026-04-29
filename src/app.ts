@@ -41,7 +41,7 @@ app.delete('/upload/delete', deleteFile)
 //  */
 
 app.post("/challenges/create/", requireAuth, RequireToCreateChallenge, challengeCreate)
-app.get("/challenges/", challengeGetAll)
+app.get("/challenges/", requireAuth, challengeGetAll)
 app.post("/challenges/join/", requireAuth, requireUserId ,RequireChallengeId, challengeJoin)
 app.delete("/challenges/leave/", requireAuth, requireUserId ,RequireChallengeId, challengeLeave)
 app.delete("/challenges/cancel/", requireAuth, RequireChallengeId, challengeCancel)
