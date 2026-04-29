@@ -29,9 +29,17 @@ export class CFriends {
 
    async getFriends(user_id: string){
     return await db.query(
-        `SELECT * FROM ${this.table}
-         WHERE status = $1
-         AND (requester_id = $2 OR addressee_id = $2)`,
+        `SELECT 
+            u.id,
+            u.name
+        FROM friendships f
+        JOIN users u 
+        ON u.id = CASE 
+                    WHEN f.requester_id = $2 THEN f.addressee_id
+                    ELSE f.requester_id
+                    END
+        WHERE f.status = $1
+        AND (f.requester_id = $2 OR f.addressee_id = $2)`,
         [states.ACCEPTED, user_id]
     );
    }
