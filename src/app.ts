@@ -7,7 +7,7 @@ import { requireAuth } from "./middlewares/auth";
 import { acceptGroupRequest, denyGroupRequest, getMyGroups, getPendingGroupRequest, groupCreate, sendGroupRequest } from "./controllers/groups";
 import { challengeCreate, challengeGetAll, challengeJoin, challengeLeave, challengeCancel, challengeCompleted, requireUserId, RequireChallengeId, RequireToCreateChallenge} from "./controllers/challenges"
 import { deleteFile, getFile, uploadFile } from "./controllers/files";
-import { acceptFriendRequest, deleteFriendFromUser, denyIncomingFriendRequest, getFriends, getIncomingFriendRequest, sendFriendRequest } from "./controllers/friends";
+import { acceptFriendRequest, deleteFriendFromUser, denyIncomingFriendRequest, getFriends, getIncomingFriendRequest, getPendingFriendRequest, sendFriendRequest } from "./controllers/friends";
 
 
 const storage: StorageEngine = multer.diskStorage({
@@ -77,6 +77,7 @@ app.post("/friends/send", requireAuth, sendFriendRequest)
 app.post("/friends/accept", requireAuth, acceptFriendRequest)
 app.get("/me/friends", requireAuth, getFriends)
 app.get("/me/incoming_friend", requireAuth, getIncomingFriendRequest)
+app.get("/me/pending_friend", requireAuth, getPendingFriendRequest)
 app.delete("/friends/delete", requireAuth, deleteFriendFromUser)
 app.delete("/friends/deny", requireAuth, denyIncomingFriendRequest)
 

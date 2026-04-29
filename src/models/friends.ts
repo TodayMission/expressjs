@@ -45,24 +45,40 @@ export class CFriends {
    }
 
    async getIncoming(user_id: string){
-       let response = await this.manager.select(this.table, ["*"], {
-            WHERE: [
-                ["status", "AND addressee_id"],
-                [states.PENDING, user_id]
-            ]
-        }) 
-        return response
+    return await db.query(
+        `SELECT 
+            u.id,
+            u.name
+        FROM friendships f
+        JOIN users u 
+        ON u.id = f.requester_id
+        WHERE f.status = $1
+        AND f.addressee_id = $2`,
+        [states.PENDING, user_id]
+    );
+   }
+
+      async getPending(user_id: string){
+        return await db.query(
+        `SELECT 
+            u.id,
+            u.name
+        FROM friendships f
+        JOIN users u 
+        ON u.id = f.addressee_id
+        WHERE f.status = $1
+        AND f.requester_id = $2`,
+        [states.PENDING, user_id]
+    );
    }
 
    async deleteFriend(requester: string, addressee: string){
        let response = await db.query(`
         DELETE FROM friendships
-        WHERE status = 'ACCEPTED'
-        AND (
+        WHERE 
             (requester_id = $1 AND addressee_id = $2)
             OR
-            (requester_id = $2 AND addressee_id = $1)
-        );`,
+            (requester_id = $2 AND addressee_id = $1);`,
         [requester, addressee]
     )
    }
