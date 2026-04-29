@@ -36,3 +36,44 @@ export async function getMyGroups(req: Request, res: Response) {
   
   return res.send(_groups[0])
 }
+
+export async function sendGroupRequest(req: Request, res: Response) {
+
+  const groupId = req.body.groupId
+  const userId = req.body.user
+
+  await groups.sendGroupRequest(groupId, userId)
+  
+  return res.json({'message': 'Group request sended successfuly'})
+}
+
+export async function acceptGroupRequest(req: Request, res: Response) {
+  const user = (req as any).user;
+  const userId = user?.userId;
+
+  const groupId = req.body.groupId
+
+  await groups.acceptGroupRequest(groupId, userId)
+  
+  return res.json({'message': 'Group request accepted successfuly'})
+}
+
+export async function denyGroupRequest(req: Request, res: Response) {
+  const user = (req as any).user;
+  const userId = user?.userId;
+
+  const groupId = req.body.groupId
+
+  await groups.denyGroupRequest(groupId, userId)
+  
+  return res.json({'message': 'Group request accepted successfuly'})
+}
+
+export async function getPendingGroupRequest(req: Request, res : Response){
+  const user = (req as any).user;
+  const userId = user?.userId;
+
+  let _groups = await groups.getUserPendingGroups(userId)
+  
+  return res.send(_groups[0])
+}
