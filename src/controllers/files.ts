@@ -58,7 +58,7 @@ export async function uploadFile(req: Request, res: Response) {
 }
 
 export async function deleteFile(req: Request, res: Response){
-  let id = req.query["id"] as string
+  let id = req.body.id as string
 
   try {
     let result = await files.get(id)
