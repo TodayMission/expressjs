@@ -6,7 +6,7 @@ import { database } from "../data";
 const files: Files = new Files(new database)
 
 export async function uploadFile(req: Request, res: Response) {
-  let userId = req.query["userId"] as string
+  let userId = req.body.userId as string
   if (!req.file) {
     return res.status(400).json({ error: 'No file uploaded' });
   }
@@ -25,7 +25,7 @@ export async function uploadFile(req: Request, res: Response) {
 }
 
 export async function deleteFile(req: Request, res: Response){
-  let id = req.query["id"] as string
+  let id = req.body.id as string
 
   try {
     let result = await files.get(id)

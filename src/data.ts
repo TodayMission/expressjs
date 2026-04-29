@@ -64,11 +64,7 @@ export class database implements data {
         let updateString: String = this.parseWhere(keys);
         let whereClause: String = this.parseWhere(options.WHERE[0], keys.length);
 
-        console.log(keys.length)
         let whereValues = options.WHERE[1]
-
-        console.log(updateString)
-        console.log(whereClause)
 
         await db.none(
             `UPDATE ${table} SET ${updateString} WHERE ${whereClause}`,
