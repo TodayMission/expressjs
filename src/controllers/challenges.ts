@@ -17,7 +17,7 @@ export function RequireChallengeId(req: Request, res: Response, next: NextFuncti
 
 export function requireUserId(req: Request, res: Response, next: NextFunction){
     console.log((req as any).user)
-    const userId = (req as any).user;
+    const userId = (req as any).user?.userId;
 
   if (!userId) {
     return res.status(400).json({ error: "userId is required" });
@@ -29,7 +29,7 @@ export function requireUserId(req: Request, res: Response, next: NextFunction){
 export function RequireToCreateChallenge(req: Request, res: Response, next: NextFunction){
     const name = req.body.name;
     const groupId = req.body.groupId;
-    const creatorId = (req as any).user;
+    const creatorId = (req as any).user?.userId;
 
     if (!name) {
         return res.status(400).json({ error: "a name is required" });
@@ -49,7 +49,7 @@ export function RequireToCreateChallenge(req: Request, res: Response, next: Next
 export async function challengeCreate(req: Request, res: Response) {
    let name: string = req.body.name as string;
    let groupId: string = req.body.groupId as string;
-    const creatorId = (req as any).user.id;
+    const creatorId = (req as any).user.userId;
 
   await challenge.create(name, groupId, creatorId)
 
@@ -63,7 +63,7 @@ export async function challengeGetAll(_req: Request, res: Response) {
 }
 
 export async function challengeJoin(req: Request, res: Response) {
-    const userId = (req as any).user.id;
+    const userId = (req as any).user.userId;
     let challengeId: string = req.body.challengeId as string;
 
     await challenge.join(challengeId, userId);
@@ -72,7 +72,7 @@ export async function challengeJoin(req: Request, res: Response) {
 }
 
 export async function challengeLeave(req: Request, res: Response) {
-    const userId = (req as any).user.id;
+    const userId = (req as any).user.userId;
     let challengeId: string = req.body.challengeId as string;
 
     if(!await challenge.isParticipating(challengeId, userId)) {
@@ -93,7 +93,7 @@ export async function challengeCancel(req: Request, res: Response) {
 export async function challengeCompleted(req: Request, res: Response) {
     let challengeId: string = req.body.challengeId as string;
     
-    const userId = (req as any).user.id;
+    const userId = (req as any).user.userId;
     
     challenge.complete(challengeId, userId);
 
