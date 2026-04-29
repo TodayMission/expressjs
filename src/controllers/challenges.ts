@@ -1,4 +1,4 @@
-import { NextFunction, RequestHandler } from "express";
+import { NextFunction } from "express";
 import { CChallenges } from "../models/challenges";
 import { database } from "../data";
 import { Request, Response } from "express";
@@ -39,19 +39,19 @@ export function RequireToCreateChallenge(req: Request, res: Response, next: Next
         return res.status(400).json({ error: "groupID is required" });
     }
 
-    if (!creatorId) {
-        return res.status(400).json({ error: "creatorId is required" });
-    }
-
     next()
 }
 
 export async function challengeCreate(req: Request, res: Response) {
-   let name: string = req.body.name as string;
-   let groupId: string = req.body.groupId as string;
-    const creatorId = (req as any).user.id;
+   let name: string = req.body.name;
+   let groupId: string = req.body.groupId;
+   const creatorId = (req as any).user.id;
 
-  await challenge.create(name, groupId, creatorId)
+  if (!creatorId) {
+    return res.status(401).json({ message: "missing userId in token" });
+  }
+
+  await challenge.create(name, groupId, creatorId);
 
   res.json({ message: name});
 }
