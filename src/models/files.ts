@@ -14,7 +14,7 @@ export class Files {
         this.manager = data; 
     }
 
-    async upload(userId: string, filename: string, path: string){
+    async upload(userId: string, filename: string, challengeId: string, path: string){
         await this.manager.insert(this.table, ["user_id", "filename", "path"], [userId, filename, path])
     }
 
