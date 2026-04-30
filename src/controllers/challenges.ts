@@ -16,7 +16,6 @@ export function RequireChallengeId(req: Request, res: Response, next: NextFuncti
 }
 
 export function requireUserId(req: Request, res: Response, next: NextFunction){
-    console.log((req as any).user)
     const userId = (req as any).user?.userId;
 
   if (!userId) {
@@ -56,7 +55,15 @@ export async function challengeCreate(req: Request, res: Response) {
   res.json({ message: name});
 }
 
-export async function challengeGetAll(_req: Request, res: Response) {
+export async function challengeGetAll(req: Request, res: Response) {
+    const groupId = req.query.groupId as string | undefined;
+
+    if (groupId) {
+        const userId: string = (req as any).user.userId;
+        const challenges = await challenge.getByGroup(groupId, userId);
+        return res.json(challenges);
+    }
+
     let challenges = await challenge.getAll();
     
     res.json(challenges)
@@ -79,14 +86,14 @@ export async function challengeLeave(req: Request, res: Response) {
         return res.status(400).json({error: "You don't even participate to this challenge"})
     }
     
-    challenge.leave(challengeId, userId);
+    await challenge.leave(challengeId, userId);
     res.json({ message: "You leaved the challenge"})
 }
 
 export async function challengeCancel(req: Request, res: Response) {
     let challengeId: string = req.body.challengeId as string;
 
-    challenge.cancel(challengeId);
+    await challenge.cancel(challengeId);
     res.json({message: "Challenge canceled"})
 }
 
@@ -95,7 +102,7 @@ export async function challengeCompleted(req: Request, res: Response) {
     
     const userId = (req as any).user.userId;
     
-    challenge.complete(challengeId, userId);
+    await challenge.complete(challengeId, userId);
 
     res.json({message: "Challenge completed"});
 }
