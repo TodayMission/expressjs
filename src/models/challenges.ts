@@ -111,4 +111,40 @@ export class CChallenges {
       [userId],
     );
   }
+
+  //Check if the the challenge has been validate by every participants
+  async isFullyCompleted(challengeId: string): Promise<boolean> {
+
+    const total = await this.manager.select(
+        this.challengeParticipantsTable,
+        ["COUNT() as total"],
+        {
+            WHERE: [["challenge_id"], [challengeId]]
+        }
+    )
+
+    const done = await this.manager.select(
+        this.challengeParticipantsTable,
+        ["COUNT() as done"],
+        {
+            WHERE: [
+                ["challenge_id", "AND is_completed"],
+                [challengeId, 't']
+            ]
+        }
+    )
+
+    return total[0][0].total == done[0][0].done
+}
+
+async markChallengeAsCompleted(challengeId: string) {
+    await this.manager.update(
+        this.table,
+        ["is_finished"],
+        ["true"],
+        {
+            WHERE: [["id"], [challengeId]]
+        }
+    )
+}
 }

@@ -9,7 +9,7 @@ const challenges = new CChallenges(new database())
 
 export async function uploadFile(req: Request, res: Response) {
 
-  const userId = req.query["userId"] as string
+  const userId = (req as any)?.user.userId
   const challengeId = req.params.id
 
   if (!req.file) {
@@ -22,10 +22,12 @@ export async function uploadFile(req: Request, res: Response) {
   console.log("Mime type:", req.file.mimetype)
   console.log("Size:", req.file.size) 
 
+  //Creating temporary file before adding them to the database 
   const tempPath = "uploads/tmp/" + req.file.filename
   const finalPath = "uploads/" + req.file.filename
 
   try {
+    //Adding the file in database
     await fs.rename(tempPath, finalPath)
     await files.upload(
       userId,
@@ -33,11 +35,14 @@ export async function uploadFile(req: Request, res: Response) {
       req.file.filename,
       finalPath
     )
+    //Verification if all users have completed the challenges
     await challenges.complete(challengeId, userId)
+    //Verification of the state of the user in the progress of the challenge
     const isDone = await challenges.isFullyCompleted(challengeId)
     if (isDone) {
       await challenges.markChallengeAsCompleted(challengeId)
     }
+    //Backend feedback
     return res.json({
       message: "File uploaded successfully",
       filename: req.file.filename,
