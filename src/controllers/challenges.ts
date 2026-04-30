@@ -68,7 +68,6 @@ export async function challengeCreate(req: Request, res: Response) {
 
   //create the challenge 
   await challenge.create(name, groupId, creatorId);
-  await challenge.create(name, groupId, creatorId);
 
   res.json({ message: name });
 }
