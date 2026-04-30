@@ -54,10 +54,19 @@ export async function challengeCreate(req: Request, res: Response) {
   let groupId: string = req.body.groupId;
   const creatorId = (req as any).user.userId;
 
+  if (!name) {
+    return res.status(400).json({ error: "a name is required" });
+  }
+
+  if (!groupId) {
+    return res.status(400).json({ error: "groupID is required" });
+  }
+
   if (!creatorId) {
     return res.status(401).json({ message: "missing userId in token" });
   }
 
+  //create the challenge 
   await challenge.create(name, groupId, creatorId);
   await challenge.create(name, groupId, creatorId);
 
