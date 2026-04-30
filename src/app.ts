@@ -4,7 +4,7 @@ require('dotenv').config();
 
 import { userLogin } from "./controllers/auth";
 import { requireAuth } from "./middlewares/auth";
-import { challengeCreate, challengeGetAll, challengeJoin, challengeLeave, challengeCancel, challengeCompleted, requireUserId, RequireChallengeId, RequireToCreateChallenge} from "./controllers/challenges"
+import { challengeCreate, challengeGetAll, challengeJoin, challengeLeave, challengeCancel, challengeCompleted, requireUserId, RequireChallengeId} from "./controllers/challenges"
 import { deleteFile, getFile, uploadFile } from "./controllers/files";
 import { createFriendsController } from "./controllers/friends";
 import { database } from "./data";
@@ -43,7 +43,7 @@ app.delete('/upload/delete', deleteFile)
 // CHALLENGES
 //  */
 
-app.post("/challenges/create/", requireAuth, RequireToCreateChallenge, challengeCreate)
+app.post("/challenges/create/", requireAuth, challengeCreate)
 app.get("/challenges/", requireAuth, challengeGetAll)
 app.post("/challenges/join/", requireUserId ,RequireChallengeId, challengeJoin)
 app.delete("/challenges/leave/", requireUserId ,RequireChallengeId, challengeLeave)

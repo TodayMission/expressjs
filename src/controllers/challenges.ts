@@ -25,31 +25,24 @@ export function requireUserId(req: Request, res: Response, next: NextFunction){
   next();
 }
 
-export function RequireToCreateChallenge(req: Request, res: Response, next: NextFunction){
-    const name = req.body.name;
-    const groupId = req.body.groupId;
-    const creatorId = (req as any).user?.userId;
-
-    if (!name) {
-        return res.status(400).json({ error: "a name is required" });
-    }
-
-    if (!groupId) {
-        return res.status(400).json({ error: "groupID is required" });
-    }
-
-    next()
-}
-
 export async function challengeCreate(req: Request, res: Response) {
    let name: string = req.body.name;
    let groupId: string = req.body.groupId;
    const creatorId = (req as any).user.userId;
 
+  if (!name) {
+    return res.status(400).json({ error: "a name is required" });
+  }
+
+  if (!groupId) {
+    return res.status(400).json({ error: "groupID is required" });
+  }
+
   if (!creatorId) {
     return res.status(401).json({ message: "missing userId in token" });
   }
 
+  //create the challenge 
   await challenge.create(name, groupId, creatorId);
 
   res.json({ message: name});
