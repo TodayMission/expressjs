@@ -54,8 +54,8 @@ app.delete("/upload/delete", deleteFile);
 
 app.post("/challenges/create/", requireAuth, challengeCreate)
 app.get("/challenges/", requireAuth, challengeGetAll)
-app.post("/challenges/join/", requireUserId ,RequireChallengeId, challengeJoin)
-app.delete("/challenges/leave/", requireUserId ,RequireChallengeId, challengeLeave)
+app.post("/challenges/join/", requireAuth ,RequireChallengeId, challengeJoin)
+app.delete("/challenges/leave/", requireAuth ,RequireChallengeId, challengeLeave)
 app.delete("/challenges/cancel/", RequireChallengeId, challengeCancel)
 app.post("/challenges/complete", requireUserId ,RequireChallengeId,challengeCompleted)
 app.post("/challenges/:id/upload", requireUserId, upload.single("file"), uploadFile)
