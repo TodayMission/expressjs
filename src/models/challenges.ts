@@ -16,6 +16,7 @@ export class CChallenges {
     }
 
     async create(name: string, groupId: string, userId: string) {
+        //create challenge to groupe
         await this.manager.insert(
             this.table,
             ["name", "group_id", "creator_id"],
@@ -25,12 +26,14 @@ export class CChallenges {
 
     async getAll() {
 
+        //get all challenges
         let select = await this.manager.select(this.table, ["*"], undefined)
         
         return select
     }
 
     async getByGroup(groupId: string, userId: string) {
+        //get challenges by groupid
         const challenges = await this.manager.select(
             this.table,
             ["*"],
@@ -42,6 +45,7 @@ export class CChallenges {
             }
         )
 
+        //get the challenges already joined by the user
         const participations = await this.manager.select(
             this.challengeParticipantsTable,
             ["challenge_id"],
@@ -57,6 +61,7 @@ export class CChallenges {
             participations[0].map((participation: any) => participation.challenge_id)
         )
 
+        //add isjoined to challenges
         return challenges[0].map((challenge: any) => ({
             ...challenge,
             isJoined: joinedChallengeIds.has(challenge.id)
@@ -64,6 +69,7 @@ export class CChallenges {
     }
 
     async join(challengeId: string, userId: string) {
+        //add user to challenge participant
         await this.manager.insert(
             this.challengeParticipantsTable,
             ["user_id", "challenge_id"],
@@ -72,6 +78,7 @@ export class CChallenges {
     }
 
     async isParticipating(challengeId: string, userId: string) : Promise<boolean> {
+        //verif if user participate to challenge
         let response = await this.manager.select(this.challengeParticipantsTable, ["COUNT(id)"],
             {
                 WHERE: [
@@ -85,6 +92,7 @@ export class CChallenges {
     }
 
     async leave(challengeId: string, userId: string) {
+        //remove user from challenge participant
         await this.manager.delete(
             this.challengeParticipantsTable,
             {
@@ -97,6 +105,7 @@ export class CChallenges {
     }
 
     async cancel(challengeId: string) {
+        //sup challenge
         await this.manager.delete(
             this.table,
             {
@@ -109,6 +118,7 @@ export class CChallenges {
     }
 
     async complete(challengeId: string, userId: string) {
+        //mark challenge do,ne for user
         await this.manager.update(
             this.challengeParticipantsTable,
             ["is_completed"],
