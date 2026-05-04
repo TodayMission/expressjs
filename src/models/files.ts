@@ -13,7 +13,7 @@ export class Files {
     constructor(data: data) {
         this.manager = data; 
     }
-
+    //Database request
     async upload(userId: string, filename: string, challengeId: string, path: string){
         await this.manager.insert(this.table, ["user_id", "filename", "path"], [userId, filename, path])
     }
