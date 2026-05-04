@@ -10,7 +10,7 @@ const challenges = new CChallenges(new database())
 
 export async function uploadFile(req: Request, res: Response) {
 
-  const userId = req.query["userId"] as string
+  const userId = (req as any)?.user.userId
   const challengeId = req.params.id
 
   if (!req.file) {
@@ -28,6 +28,7 @@ export async function uploadFile(req: Request, res: Response) {
   const finalFilename = `${Date.now()}-${Math.random()
     .toString(36)
     .substring(2, 8)}${extension}`
+  //Creating temporary file before adding them to the database 
   const tempPath = "uploads/tmp/" + req.file.filename
   const finalPath = "uploads/" + finalFilename
 
@@ -35,7 +36,7 @@ export async function uploadFile(req: Request, res: Response) {
 console.log("ORIGINAL NAME:", req.file.originalname)
 
   try {
-
+    //Adding the file in database
     await fs.rename(tempPath, finalPath)
     console.log("FILE MOVED:", finalPath)
 
@@ -49,9 +50,11 @@ console.log("ORIGINAL NAME:", req.file.originalname)
     console.log("Original name:", req.file.originalname)
     console.log("Saved filename:", finalFilename)
 
+
+    //Verification if all users have completed the challenges
     await challenges.complete(challengeId, userId)
     console.log("USER MARKED COMPLETED")
-
+    //Verification of the state of the user in the progress of the challenge
     const isDone = await challenges.isFullyCompleted(challengeId)
     console.log("CHALLENGE FULLY COMPLETED:", isDone)
 
@@ -61,7 +64,7 @@ console.log("ORIGINAL NAME:", req.file.originalname)
     } else {
       console.log("CHALLENGE STILL IN PROGRESS")
     }
-
+    //Backend feedback
     return res.json({
       message: "File uploaded successfully",
       filename: req.file.filename,

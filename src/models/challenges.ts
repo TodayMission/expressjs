@@ -1,8 +1,7 @@
-import { data } from "../data"
+import { data } from "../data";
+import { db } from "../database";
 
-export interface IChallenges {
-
-} 
+export interface IChallenges {}
 
 export class CChallenges {
     
@@ -153,6 +152,5 @@ async markChallengeAsCompleted(challengeId: string) {
             WHERE: [["id"], [challengeId]]
         }
     )
-}
-    
+}    
 }

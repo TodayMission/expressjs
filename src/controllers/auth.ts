@@ -12,7 +12,7 @@ export async function userLogin(req: Request, res: Response) {
 
   const result = await auth.login(email, password);
   if (!result) {
-    res.json({ message: "invalid name or password" });
+    res.status(400).json({ message: "invalid name or password" });
     return;
   }
 

@@ -15,7 +15,11 @@ export class CFriends {
    }
  
    async createFriendRequest(requester: string, addressee: string) {
-        this.manager.insert(this.table, ["requester_id", "addressee_id", "status"], [requester, addressee, states.PENDING])
+    try {
+        await this.manager.insert(this.table, ["requester_id", "addressee_id", "status"], [requester, addressee, states.PENDING])
+    } catch(e: any) {
+        console.log("failed")
+    }
    }
 
    async acceptFriendRequest(requester: string, addressee: string){
