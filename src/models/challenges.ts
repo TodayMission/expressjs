@@ -1,3 +1,4 @@
+import { cp } from "fs";
 import { data } from "../data";
 import { db } from "../database";
 
@@ -152,5 +153,14 @@ async markChallengeAsCompleted(challengeId: string) {
             WHERE: [["id"], [challengeId]]
         }
     )
-}    
+}
+async getChallengesForUser(userId: string) {
+        return db.query(
+            `SELECT c.*
+             FROM challenges c
+             INNER JOIN challenge_participants cp ON cp.challenge_id = c.id
+             WHERE cp.user_id = $1`,
+            [userId],
+        );
+    }
 }
