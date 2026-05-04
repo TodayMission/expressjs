@@ -109,17 +109,50 @@ export class CChallenges {
     }
 
     async complete(challengeId: string, userId: string) {
-        await this.manager.update(
-            this.challengeParticipantsTable,
-            ["is_completed"],
-            ['t'],
-            {
-                WHERE: [
-                    ["challenge_id", "and user_id"],
-                    [challengeId, userId]
-                ]
-            }
-        )
-    }
+    await this.manager.update(
+        this.challengeParticipantsTable,
+        ["is_completed"],
+        ["true"],
+        {
+            WHERE: [
+                ["challenge_id", "AND user_id"],
+                [challengeId, userId]
+            ]
+        }
+    )
+}
+    async isFullyCompleted(challengeId: string): Promise<boolean> {
+
+    const total = await this.manager.select(
+        this.challengeParticipantsTable,
+        ["COUNT(*) as total"],
+        {
+            WHERE: [["challenge_id"], [challengeId]]
+        }
+    )
+
+    const done = await this.manager.select(
+        this.challengeParticipantsTable,
+        ["COUNT(*) as done"],
+        {
+            WHERE: [
+                ["challenge_id", "AND is_completed"],
+                [challengeId, 't']
+            ]
+        }
+    )
+
+    return total[0][0].total == done[0][0].done
+}
+async markChallengeAsCompleted(challengeId: string) {
+    await this.manager.update(
+        this.table,
+        ["is_finished"],
+        ["true"],
+        {
+            WHERE: [["id"], [challengeId]]
+        }
+    )
+}
     
 }
