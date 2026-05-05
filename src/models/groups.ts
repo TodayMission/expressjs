@@ -92,4 +92,13 @@ export class CGroups {
 
     return response;
   }
+
+  async sendMessage(groupId: string, userId: string, content: string, filePath?: string) {
+    filePath = filePath || ""
+    await this.manager.insert(
+      "messages",
+      ["group_id", "author_id", "message", "file_path"],
+      [groupId, userId, content, filePath]
+    )
+  }
 }
