@@ -1,7 +1,7 @@
 import { data } from "../data";
 import { db } from "../database";
 
-export interface IChallenges {}
+export interface IChallenges { }
 
 export class CChallenges {
   private manager!: data;
@@ -104,7 +104,7 @@ export class CChallenges {
 
   async getChallengesForUser(userId: string) {
     return db.query(
-      `SELECT c.*
+      `SELECT c.*, cp.is_completed, (SELECT COUNT(*) FROM challenge_participants where challenge_id = c.id) as member_count
          FROM challenges c
          INNER JOIN challenge_participants cp ON cp.challenge_id = c.id
          WHERE cp.user_id = $1`,
