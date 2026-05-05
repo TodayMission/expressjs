@@ -92,5 +92,4 @@ export const createGroupsController = (groups: CGroups) => ({
     
     res.status(200).send(_groups[0])
   }
-
 })

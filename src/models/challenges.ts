@@ -144,23 +144,44 @@ export class CChallenges {
 
     return total[0][0].total == done[0][0].done
 }
-async markChallengeAsCompleted(challengeId: string) {
-    await this.manager.update(
+    async markChallengeAsCompleted(challengeId: string) {
+        await this.manager.update(
+            this.table,
+            ["is_finished"],
+            ["true"],
+            {
+                WHERE: [["id"], [challengeId]]
+            }
+        )
+    }
+    async getChallengesForUser(userId: string) {
+            return db.query(
+                `SELECT c.*
+                FROM challenges c
+                INNER JOIN challenge_participants cp ON cp.challenge_id = c.id
+                WHERE cp.user_id = $1`,
+                [userId],
+            );
+        }
+    async getById(challengeId: string) {
+    const result = await this.manager.select(
         this.table,
-        ["is_finished"],
-        ["true"],
+        ["*"],
         {
-            WHERE: [["id"], [challengeId]]
+        WHERE: [["id"], [challengeId]]
         }
     )
-}
-async getChallengesForUser(userId: string) {
-        return db.query(
-            `SELECT c.*
-             FROM challenges c
-             INNER JOIN challenge_participants cp ON cp.challenge_id = c.id
-             WHERE cp.user_id = $1`,
-            [userId],
-        );
+
+    return result[0][0]
     }
+    
+    async sendMessage(groupId: string, userId: string, content: string, filePath?: string) {
+    filePath = filePath || ""
+    await this.manager.insert(
+    "messages",
+    ["group_id", "user_id", "content", "file_path"],
+    [groupId, userId, content, filePath]
+  )
 }
+}
+

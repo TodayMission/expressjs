@@ -3,10 +3,12 @@ import fs from "fs/promises";
 import { Files } from "../models/files"; 
 import { database } from "../data";
 import { CChallenges } from "../models/challenges"
+import { CGroups } from "../models/groups"
 import path from "path"
 
 const files: Files = new Files(new database())
 const challenges = new CChallenges(new database())
+const groups = new CGroups(new database())
 
 export async function uploadFile(req: Request, res: Response) {
 
@@ -19,9 +21,6 @@ export async function uploadFile(req: Request, res: Response) {
   }
 
   console.log("FILE RECEIVED")
-  console.log("Original name:", req.file.originalname)
-  console.log("Filename:", req.file.filename)
-  console.log("Size:", req.file.size)
 
   const extension = path.extname(req.file.originalname) || ".bin"
 
@@ -31,9 +30,6 @@ export async function uploadFile(req: Request, res: Response) {
   //Creating temporary file before adding them to the database 
   const tempPath = "uploads/tmp/" + req.file.filename
   const finalPath = "uploads/" + finalFilename
-
-  console.log("REQ FILE:", req.file)
-console.log("ORIGINAL NAME:", req.file.originalname)
 
   try {
     //Adding the file in database
@@ -47,29 +43,37 @@ console.log("ORIGINAL NAME:", req.file.originalname)
       finalPath
     )
     console.log("FILE SAVED IN DB")
-    console.log("Original name:", req.file.originalname)
-    console.log("Saved filename:", finalFilename)
+    
 
+    // mark user as completed for this challenge
+await challenges.complete(challengeId, userId)
 
-    //Verification if all users have completed the challenges
-    await challenges.complete(challengeId, userId)
-    console.log("USER MARKED COMPLETED")
-    //Verification of the state of the user in the progress of the challenge
-    const isDone = await challenges.isFullyCompleted(challengeId)
-    console.log("CHALLENGE FULLY COMPLETED:", isDone)
+// retrieve challenge data
+const challengeData = await challenges.getById(challengeId)
+const groupId = challengeData.group_id
 
-    if (isDone) {
-      await challenges.markChallengeAsCompleted(challengeId)
-      console.log("CHALLENGE MARKED AS FINISHED")
-    } else {
-      console.log("CHALLENGE STILL IN PROGRESS")
-    }
-    //Backend feedback
-    return res.json({
-      message: "File uploaded successfully",
-      filename: req.file.filename,
-      challengeCompleted: isDone
-    })
+// send message with proof to the group
+await groups.sendMessage(
+  groupId,
+  userId,
+  "a envoyé une preuve pour le challenge 📸",
+  finalPath
+)
+
+// check if all participants have completed the challenge
+const isDone = await challenges.isFullyCompleted(challengeId)
+
+if (isDone) {
+  // mark challenge as fully completed
+  await challenges.markChallengeAsCompleted(challengeId)
+
+  // notify group that the challenge is finished
+  await groups.sendMessage(
+    groupId,
+    userId,
+    "🎉 Challenge terminé par tout le monde !"
+  )
+}
 
   } catch (error) {
 
