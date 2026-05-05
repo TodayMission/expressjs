@@ -67,11 +67,17 @@ export class CGroups {
 
   async getUserGroups(user_id: string) {
     let response = await db.multi(
-      `SELECT * 
-        FROM group_users 
-        JOIN groups 
-        ON group_users.group_id = groups.id
-        WHERE group_users.user_id = $1
+      `SELECT
+        *,
+        (
+          SELECT COUNT(*)
+          FROM group_users AS gu
+          WHERE gu.group_id = groups.id
+            AND gu.state = 'ACCEPTED'
+        ) AS member_count
+      FROM group_users 
+      JOIN groups ON group_users.group_id = groups.id
+      WHERE group_users.user_id = $1
         AND group_users.state = $2`,
       [user_id, groupState.ACCEPTED],
     );
