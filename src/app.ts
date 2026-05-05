@@ -11,7 +11,6 @@ import {
   challengeLeave,
   challengeCancel,
   challengeCompleted,
-  requireUserId,
   RequireChallengeId,
   RequireToCreateChallenge,
   getChallengesForUser,
@@ -22,6 +21,7 @@ import { database } from "./data";
 import { CFriends } from "./models/friends";
 import { CGroups } from "./models/groups";
 import { createGroupsController } from "./controllers/groups";
+import { createGroupMessage, getGroupMessages } from "./controllers/messages";
 
 const storage: StorageEngine = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -44,7 +44,7 @@ app.get("/", (_req, res) => {
 //**
 // UPLOAD
 //  */
-app.post("/upload", requireUserId, upload.single("file"), uploadFile);
+app.post("/upload", requireAuth, upload.single("file"), uploadFile);
 app.get("/upload", getFile);
 app.delete("/upload/delete", deleteFile);
 
@@ -57,8 +57,8 @@ app.get("/challenges/", requireAuth, challengeGetAll)
 app.post("/challenges/join/", requireAuth ,RequireChallengeId, challengeJoin)
 app.delete("/challenges/leave/", requireAuth ,RequireChallengeId, challengeLeave)
 app.delete("/challenges/cancel/", RequireChallengeId, challengeCancel)
-app.post("/challenges/complete", requireUserId ,RequireChallengeId,challengeCompleted)
-app.post("/challenges/:id/upload", requireUserId, upload.single("file"), uploadFile)
+app.post("/challenges/complete", requireAuth ,RequireChallengeId,challengeCompleted)
+app.post("/challenges/:id/upload", requireAuth, upload.single("file"), uploadFile)
 app.get("/challenges/user/:userId", requireAuth, getChallengesForUser);
 
 //**
@@ -83,6 +83,8 @@ app.get(
   requireAuth,
   groupsController.getPendingGroupRequest,
 );
+app.get("/groups/:groupId/messages", requireAuth, getGroupMessages);
+app.post("/groups/:groupId/messages", requireAuth, createGroupMessage);
 
 /**
  * FRIENDS

@@ -36,11 +36,15 @@ export class CGroups {
   }
 
   async sendGroupRequest(group_id: string, user_id: string) {
-    await db.none(
-      `INSERT INTO group_users (group_id, user_id, joined_at, state)
-         VALUES ($1, $2, NOW(), $3)`,
-      [group_id, user_id, groupState.PENDING],
-    );
+    try {
+      await db.none(
+        `INSERT INTO group_users (group_id, user_id, joined_at, state)
+           VALUES ($1, $2, NOW(), $3)`,
+        [group_id, user_id, groupState.PENDING],
+      );
+    } catch (e: any) {
+      console.log("erreur")
+    } 
   }
 
   async acceptGroupRequest(group_id: string, user_id: string) {
@@ -93,5 +97,14 @@ export class CGroups {
     );
 
     return response;
+  }
+
+  async sendMessage(groupId: string, userId: string, content: string, filePath?: string) {
+    filePath = filePath || ""
+    await this.manager.insert(
+      "messages",
+      ["group_id", "author_id", "message", "file_path"],
+      [groupId, userId, content, filePath]
+    )
   }
 }

@@ -3,52 +3,85 @@ import fs from "fs/promises";
 import { Files } from "../models/files"; 
 import { database } from "../data";
 import { CChallenges } from "../models/challenges"
+import { CGroups } from "../models/groups"
+import path from "path"
 
-const files: Files = new Files(new database)
+const files: Files = new Files(new database())
 const challenges = new CChallenges(new database())
+const groups = new CGroups(new database())
 
 export async function uploadFile(req: Request, res: Response) {
 
-  const userId = req.query["userId"] as string
+  const userId = (req as any)?.user.userId
   const challengeId = req.params.id
 
   if (!req.file) {
+    console.log("NO FILE RECEIVED")
     return res.status(400).json({ error: "No file uploaded" })
   }
 
-  console.log("FILE UPLOADED:")
-  console.log("Original name:", req.file.originalname)
-  console.log("Filename:", req.file.filename)
-  console.log("Mime type:", req.file.mimetype)
-  console.log("Size:", req.file.size) 
+  console.log("FILE RECEIVED")
 
+  const extension = path.extname(req.file.originalname) || ".bin"
+
+  const finalFilename = `${Date.now()}-${Math.random()
+    .toString(36)
+    .substring(2, 8)}${extension}`
+  //Creating temporary file before adding them to the database 
   const tempPath = "uploads/tmp/" + req.file.filename
-  const finalPath = "uploads/" + req.file.filename
+  const finalPath = "uploads/" + finalFilename
 
   try {
+    //Adding the file in database
     await fs.rename(tempPath, finalPath)
+    console.log("FILE MOVED:", finalPath)
+
     await files.upload(
       userId,
       challengeId,
-      req.file.filename,
+      req.file.originalname,
       finalPath
     )
-    await challenges.complete(challengeId, userId)
-    const isDone = await challenges.isFullyCompleted(challengeId)
-    if (isDone) {
-      await challenges.markChallengeAsCompleted(challengeId)
-    }
-    return res.json({
-      message: "File uploaded successfully",
-      filename: req.file.filename,
-      challengeCompleted: isDone
-    })
-  } catch (error) {
+    console.log("FILE SAVED IN DB")
     
-    console.error(" UPLOAD ERROR:", error)
+
+    // mark user as completed for this challenge
+await challenges.complete(challengeId, userId)
+
+// retrieve challenge data
+const challengeData = await challenges.getById(challengeId)
+const groupId = challengeData.group_id
+
+// send message with proof to the group
+await groups.sendMessage(
+  groupId,
+  userId,
+  "a envoyé une preuve pour le challenge 📸",
+  finalPath
+)
+
+// check if all participants have completed the challenge
+const isDone = await challenges.isFullyCompleted(challengeId)
+
+if (isDone) {
+  // mark challenge as fully completed
+  await challenges.markChallengeAsCompleted(challengeId)
+
+  // notify group that the challenge is finished
+  await groups.sendMessage(
+    groupId,
+    userId,
+    "🎉 Challenge terminé par tout le monde !"
+  )
+}
+
+  } catch (error) {
+
+    console.error("UPLOAD ERROR:", error)
 
     try {
       await fs.unlink(tempPath)
+      console.log("TEMP FILE CLEANED")
     } catch {}
 
     return res.status(500).json({
