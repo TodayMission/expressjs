@@ -21,6 +21,7 @@ import { database } from "./data";
 import { CFriends } from "./models/friends";
 import { CGroups } from "./models/groups";
 import { createGroupsController } from "./controllers/groups";
+import { createGroupMessage, getGroupMessages } from "./controllers/messages";
 
 const storage: StorageEngine = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -82,6 +83,8 @@ app.get(
   requireAuth,
   groupsController.getPendingGroupRequest,
 );
+app.get("/groups/:groupId/messages", requireAuth, getGroupMessages);
+app.post("/groups/:groupId/messages", requireAuth, createGroupMessage);
 
 /**
  * FRIENDS
