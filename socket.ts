@@ -23,9 +23,9 @@ export const initSocket = (server: HTTPServer) => {
             console.log("a user joined ", groupId)
         });
 
-        socket.on('message-group', ({groupId, message}) => {
-            console.log(groupId + " : " + message)
-            socket.to(groupId).emit("message-group", {groupId, message})
+        socket.on('message-group', (data) => {
+            console.log(data.groupId + " : " + data.message)
+            socket.to(data.groupId).emit("message-group", data)
         })
 
         socket.on("disconnect", () => {
