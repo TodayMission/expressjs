@@ -2,165 +2,188 @@ import { cp } from "fs";
 import { data } from "../data";
 import { db } from "../database";
 
-export interface IChallenges {}
+export interface IChallenges { }
 
 export class CChallenges {
-    
-    private manager!: data;
-    private table = "challenges";
 
-    private challengeParticipantsTable = "challenge_participants";
+  private manager!: data;
+  private table = "challenges";
 
-    constructor(data: data) {
-        this.manager = data; 
-    }
+  private challengeParticipantsTable = "challenge_participants";
 
-    async create(name: string, groupId: string, userId: string) {
-        await this.manager.insert(
-            this.table,
-            ["name", "group_id", "creator_id"],
-            [name, groupId, userId]
-        );
-    }
+  constructor(data: data) {
+    this.manager = data;
+  }
 
-    async getAll() {
+  async create(name: string, groupId: string, userId: string) {
+    await this.manager.insert(
+      this.table,
+      ["name", "group_id", "creator_id"],
+      [name, groupId, userId]
+    );
+  }
 
-        let select = await this.manager.select(this.table, ["*"], undefined)
-        
-        return select
-    }
+  async getAll() {
 
-    async getByGroup(groupId: string, userId: string) {
-        const challenges = await this.manager.select(
-            this.table,
-            ["*"],
-            {
-                WHERE: [
-                    ["group_id"],
-                    [groupId]
-                ]
-            }
-        )
+    let select = await this.manager.select(this.table, ["*"], undefined)
 
-        const participations = await this.manager.select(
-            this.challengeParticipantsTable,
-            ["challenge_id"],
-            {
-                WHERE: [
-                    ["user_id"],
-                    [userId]
-                ]
-            }
-        )
+    return select
+  }
 
-        const joinedChallengeIds = new Set(
-            participations[0].map((participation: any) => participation.challenge_id)
-        )
-
-        return challenges[0].map((challenge: any) => ({
-            ...challenge,
-            isJoined: joinedChallengeIds.has(challenge.id)
-        }))
-    }
-
-    async join(challengeId: string, userId: string) {
-        await this.manager.insert(
-            this.challengeParticipantsTable,
-            ["user_id", "challenge_id"],
-            [userId, challengeId]
-        )
-    }
-
-    async isParticipating(challengeId: string, userId: string) : Promise<boolean> {
-        let response = await this.manager.select(this.challengeParticipantsTable, ["COUNT(id)"],
-            {
-                WHERE: [
-                    ["user_id", "AND challenge_id"],
-                    [userId, challengeId]
-                ]
-            }
-        )
-
-        return response[0][0]["count"] != 0;
-    }
-
-    async leave(challengeId: string, userId: string) {
-        await this.manager.delete(
-            this.challengeParticipantsTable,
-            {
-                WHERE: [
-                    ["user_id", "AND challenge_id"],
-                    [userId, challengeId]
-                ]
-            }
-        )
-    }
-
-    async cancel(challengeId: string) {
-        await this.manager.delete(
-            this.table,
-            {
-                WHERE: [
-                    ["id"],
-                    [challengeId]
-                ]
-            }
-        )
-    }
-
-    async complete(challengeId: string, userId: string) {
-    await this.manager.update(
-        this.challengeParticipantsTable,
-        ["is_completed"],
-        ["true"],
-        {
-            WHERE: [
-                ["challenge_id", "AND user_id"],
-                [challengeId, userId]
-            ]
-        }
+  async getByGroup(groupId: string, userId: string) {
+    const challenges = await this.manager.select(
+      this.table,
+      ["*"],
+      {
+        WHERE: [
+          ["group_id"],
+          [groupId]
+        ]
+      }
     )
-}
-    async isFullyCompleted(challengeId: string): Promise<boolean> {
+
+    const participations = await this.manager.select(
+      this.challengeParticipantsTable,
+      ["challenge_id"],
+      {
+        WHERE: [
+          ["user_id"],
+          [userId]
+        ]
+      }
+    )
+
+    const joinedChallengeIds = new Set(
+      participations[0].map((participation: any) => participation.challenge_id)
+    )
+
+    return challenges[0].map((challenge: any) => ({
+      ...challenge,
+      isJoined: joinedChallengeIds.has(challenge.id)
+    }))
+  }
+
+  async join(challengeId: string, userId: string) {
+    await this.manager.insert(
+      this.challengeParticipantsTable,
+      ["user_id", "challenge_id"],
+      [userId, challengeId]
+    )
+  }
+
+  async isParticipating(challengeId: string, userId: string): Promise<boolean> {
+    let response = await this.manager.select(this.challengeParticipantsTable, ["COUNT(id)"],
+      {
+        WHERE: [
+          ["user_id", "AND challenge_id"],
+          [userId, challengeId]
+        ]
+      }
+    )
+
+    return response[0][0]["count"] != 0;
+  }
+
+  async leave(challengeId: string, userId: string) {
+    await this.manager.delete(
+      this.challengeParticipantsTable,
+      {
+        WHERE: [
+          ["user_id", "AND challenge_id"],
+          [userId, challengeId]
+        ]
+      }
+    )
+  }
+
+  async cancel(challengeId: string) {
+    await this.manager.delete(
+      this.table,
+      {
+        WHERE: [
+          ["id"],
+          [challengeId]
+        ]
+      }
+    )
+  }
+
+  async complete(challengeId: string, userId: string) {
+    await this.manager.update(
+      this.challengeParticipantsTable,
+      ["is_completed"],
+      ["t"],
+      {
+        WHERE: [
+          ["challenge_id", "and user_id"],
+          [challengeId, userId],
+        ],
+      },
+    );
+  }
+
+  async getChallengesForUser(userId: string) {
+    return db.query(
+      `SELECT c.*, cp.is_completed, (SELECT COUNT(*) FROM challenge_participants where challenge_id = c.id) as member_count
+         FROM challenges c
+         INNER JOIN challenge_participants cp ON cp.challenge_id = c.id
+         WHERE cp.user_id = $1`,
+      [userId],
+    );
+  }
+
+  async isFullyCompleted(challengeId: string): Promise<boolean> {
 
     const total = await this.manager.select(
-        this.challengeParticipantsTable,
-        ["COUNT(*) as total"],
-        {
-            WHERE: [["challenge_id"], [challengeId]]
-        }
+      this.challengeParticipantsTable,
+      ["COUNT(*) as total"],
+      {
+        WHERE: [["challenge_id"], [challengeId]]
+      }
     )
 
     const done = await this.manager.select(
-        this.challengeParticipantsTable,
-        ["COUNT(*) as done"],
-        {
-            WHERE: [
-                ["challenge_id", "AND is_completed"],
-                [challengeId, 't']
-            ]
-        }
+      this.challengeParticipantsTable,
+      ["COUNT(*) as done"],
+      {
+        WHERE: [
+          ["challenge_id", "AND is_completed"],
+          [challengeId, 't']
+        ]
+      }
     )
 
     return total[0][0].total == done[0][0].done
-}
-async markChallengeAsCompleted(challengeId: string) {
+  }
+  async markChallengeAsCompleted(challengeId: string) {
     await this.manager.update(
-        this.table,
-        ["is_finished"],
-        ["true"],
-        {
-            WHERE: [["id"], [challengeId]]
-        }
+      this.table,
+      ["is_finished"],
+      ["true"],
+      {
+        WHERE: [["id"], [challengeId]]
+      }
     )
-}
-async getChallengesForUser(userId: string) {
-        return db.query(
-            `SELECT c.*
-             FROM challenges c
-             INNER JOIN challenge_participants cp ON cp.challenge_id = c.id
-             WHERE cp.user_id = $1`,
-            [userId],
-        );
-    }
+  }
+
+  async getById(challengeId: string) {
+    const result = await this.manager.select(
+      this.table,
+      ["*"],
+      {
+        WHERE: [["id"], [challengeId]]
+      }
+    )
+
+    return result[0][0]
+  }
+
+  async sendMessage(groupId: string, userId: string, content: string, filePath?: string) {
+    filePath = filePath || ""
+    await this.manager.insert(
+      "messages",
+      ["group_id", "user_id", "content", "file_path"],
+      [groupId, userId, content, filePath]
+    )
+  }
 }
