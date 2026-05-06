@@ -99,6 +99,17 @@ export class CGroups {
     return response;
   }
 
+  async getGroupById(id: string) {
+    let response = await this.manager.select(this.table, ["*"], {
+      WHERE: [
+        ["id"],
+        [id]
+      ]
+    })
+
+    return response;
+  }
+
   async sendMessage(groupId: string, userId: string, content: string, filePath?: string) {
     filePath = filePath || ""
     await this.manager.insert(

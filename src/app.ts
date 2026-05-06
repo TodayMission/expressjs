@@ -83,6 +83,7 @@ app.get(
   requireAuth,
   groupsController.getPendingGroupRequest,
 );
+app.get("/groups", requireAuth, groupsController.getGroupsById)
 app.get("/groups/:groupId/messages", requireAuth, getGroupMessages);
 app.post("/groups/:groupId/messages", requireAuth, createGroupMessage);
 
