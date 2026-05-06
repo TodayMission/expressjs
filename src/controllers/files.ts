@@ -119,5 +119,5 @@ export async function getFile(req: Request, res: Response) {
     return res.status(400).json({error: "error while deleting"})
   }
   
-  res.json({message: result})
+  res.json(result[0])
 }
