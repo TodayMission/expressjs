@@ -52,7 +52,7 @@ app.delete("/upload/delete", deleteFile);
 app.get("/image/:name", (req, res) => {
   const name = req.params.name;
 
-  res.sendFile(path.join(__dirname, "..", "uploads", name));
+  res.sendFile(path.join(process.cwd(), "uploads", name));
 });
 
 //**
