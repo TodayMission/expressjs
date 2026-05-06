@@ -28,6 +28,6 @@ export class Files {
     }
     
     async get(id: string){
-        return await this.manager.select(this.table, ["*"], {WHERE: [["id"], [id]]})
+        return await this.manager.select(this.table, ["*"], {WHERE: [["filename"], [id]]})
     }
 }

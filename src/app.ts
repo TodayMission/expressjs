@@ -22,6 +22,7 @@ import { CFriends } from "./models/friends";
 import { CGroups } from "./models/groups";
 import { createGroupsController } from "./controllers/groups";
 import { createGroupMessage, getGroupMessages } from "./controllers/messages";
+import path from "node:path";
 
 const storage: StorageEngine = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -47,6 +48,10 @@ app.get("/", (_req, res) => {
 app.post("/upload", requireAuth, upload.single("file"), uploadFile);
 app.get("/upload", getFile);
 app.delete("/upload/delete", deleteFile);
+
+app.get("/image", (req, res) => {
+  res.sendFile(path.join(__dirname, "..", "uploads", "image.JPG"));
+});
 
 //**
 // CHALLENGES
