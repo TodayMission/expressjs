@@ -92,4 +92,15 @@ export class CGroups {
 
     return response;
   }
+
+  async getGroupById(id: string) {
+    let response = await this.manager.select(this.table, ["*"], {
+      WHERE: [
+        ["id"],
+        [id]
+      ]
+    })
+
+    return response;
+  }
 }

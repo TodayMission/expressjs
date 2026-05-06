@@ -91,6 +91,14 @@ export const createGroupsController = (groups: CGroups) => ({
     let _groups = await groups.getUserPendingGroups(userId)
     
     res.status(200).send(_groups[0])
+  },
+
+  async getGroupsById(req: Request, res: Response) {
+    let id = req.query["id"] as string
+    let _groups = await groups.getGroupById(id)
+    
+    res.status(200).send(_groups[0])
   }
+  
 
 })

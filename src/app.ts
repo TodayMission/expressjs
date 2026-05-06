@@ -82,6 +82,7 @@ app.get(
   requireAuth,
   groupsController.getPendingGroupRequest,
 );
+app.get("/groups", requireAuth, groupsController.getGroupsById)
 
 /**
  * FRIENDS
