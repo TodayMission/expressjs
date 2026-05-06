@@ -49,8 +49,10 @@ app.post("/upload", requireAuth, upload.single("file"), uploadFile);
 app.get("/upload", getFile);
 app.delete("/upload/delete", deleteFile);
 
-app.get("/image", (req, res) => {
-  res.sendFile(path.join(__dirname, "..", "uploads", "image.JPG"));
+app.get("/image/:name", (req, res) => {
+  const name = req.params.name;
+
+  res.sendFile(path.join(__dirname, "..", "uploads", name));
 });
 
 //**
